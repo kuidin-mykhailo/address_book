@@ -19,6 +19,6 @@ services:
     volumes:
       - .:/app
     ports:
-      - "8082:8080"
+      - "8083:8080"
     depends_on:
       - django

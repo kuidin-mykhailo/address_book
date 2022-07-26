@@ -11,20 +11,25 @@
     <table class="table table-striped">
       <thead>
       <tr>
-        <th scope="col">#</th>
+        <th scope="col">ID</th>
         <th scope="col">Name</th>
         <th scope="col">Surname</th>
         <th scope="col">City</th>
         <th scope="col">Address</th>
+        <th scope="col">Zipcode</th>
+        <th scope="col">#</th>
       </tr>
       </thead>
       <tbody>
       <tr v-for="record in addressBookData" :key="record.id">
         <th scope="row">{{ record.id }}</th>
-        <td>{{ record.person_first_name }}</td>
-        <td>{{ record.person_last_name }}</td>
-        <td>{{ record.city_name }}</td>
+        <td>{{ record.person.first_name }}</td>
+        <td>{{ record.person.last_name }}</td>
+        <td>{{ record.city.name }}</td>
         <td>{{ record.address }}</td>
+        <td>{{ record.zipcode }}</td>
+        <td><router-link
+            :to="{ name: 'detail', params: {id: record.id }}"><button class="btn btn-dark">Details</button></router-link></td>
       </tr>
       </tbody>
     </table>
@@ -52,7 +57,7 @@ export default {
     },
     getAddressBookData() {
       axios
-          .get('/api/v1/address_book_compact')
+          .get('/api/v1/address_book')
           .then(response => {
             this.addressBookData = response.data.results
             console.log(this.addressBookData)
@@ -64,7 +69,7 @@ export default {
     },
     getAddressBookDataFiltered() {
       axios
-          .get('/api/v1/address_book_compact?search=' + this.searchField)
+          .get('/api/v1/address_book?search=' + this.searchField)
           .then(response => {
             this.addressBookData = response.data.results
             console.log(this.addressBookData)

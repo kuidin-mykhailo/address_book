@@ -9,10 +9,10 @@
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
           <li class="nav-item active">
-            <a class="nav-link" href="#">Dashboard</a>
+            <router-link class="nav-link" :to="{ name: 'main'}">Dashboard</router-link>
           </li>
           <li class="nav-item">
-            <router-link class="nav-link" to="add">Add Record</router-link>
+            <router-link class="nav-link" :to="{ name: 'add' }">Add Record</router-link>
           </li>
         </ul>
       </div>

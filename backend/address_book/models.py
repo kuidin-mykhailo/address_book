@@ -19,7 +19,7 @@ class Person(BaseModel):
     last_name = models.CharField("Last name", max_length=120, default='Kuidin')
     home_phone = models.CharField("Home number", max_length=15, blank=True, null=True, unique=True)
     work_phone = models.CharField("Work number", max_length=15, blank=True, null=True, unique=True)
-    fax = models.PositiveIntegerField("Fax", blank=True, null=True, unique=True)
+    fax = models.PositiveIntegerField("Fax", blank=True, null=True)
     email = models.EmailField("Email", max_length=120, unique=True)
 
     @property
@@ -38,7 +38,7 @@ class Person(BaseModel):
 
 class City(models.Model):
     """Model City"""
-    name = models.CharField("Name", max_length=128)
+    name = models.CharField("Name", max_length=128, unique=True)
 
     def __str__(self):
         return self.name
