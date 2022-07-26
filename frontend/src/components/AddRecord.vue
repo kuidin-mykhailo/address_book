@@ -1,5 +1,5 @@
 <template>
-  <form>
+  <form v-on:submit.prevent="onSubmit">
     <div class="container-md">
       <div class="row mb-4">
         <div class="col">
@@ -37,28 +37,27 @@
         <label for="homeNumber">Home number</label>
         <input class="form-control" id="homeNumber" aria-describedby="homeNumberHelp"
                placeholder="Enter home number (Optional)"
-        v-model="home_number">
+               v-model="home_number">
         <small id="homeNumberHelp" class="form-text text-muted">Maximum 15 characters.</small>
       </div>
       <div class="form-group mb-2">
         <label for="workNumber">Work number</label>
         <input class="form-control" id="workNumber" aria-describedby="workNumberHelp"
                placeholder="Enter work number (Optional)"
-        v-model="work_number">
+               v-model="work_number">
         <small id="workNumberHelp" class="form-text text-muted">Maximum 15 characters.</small>
       </div>
       <div class="form-group mb-2">
         <label for="fax">Fax</label>
         <input class="form-control" id="fax" aria-describedby="faxHelp" placeholder="Enter fax (Optional)"
-        v-model="fax">
-      </div>
-      <div class="col my-2">
-        <label for="fax">Zipcode</label>
-        <input class="form-control" id="Zipcode" aria-describedby="ZipcodeHelp" placeholder="Enter zipcode"
                v-model="zipcode">
       </div>
-      <button type="submit" class="btn btn-primary" v-on:click="submitForm">Update</button>
-      <button class="btn btn-danger mx-4" v-on:click="deleteRecord">Delete</button>
+      <div class="col">
+        <label for="fax">Zipcode</label>
+        <input class="form-control" id="Zipcode" aria-describedby="ZipcodeHelp" placeholder="Enter zipcode"
+               v-model="fax">
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
     </div>
   </form>
 </template>
@@ -67,12 +66,11 @@
 import axios from "axios";
 
 export default {
-  name: "DetailRecordComponent",
+  name: "AddRecord",
   data() {
     return {
-      recordId: null,
-      cityId: null,
-      personId: null,
+      cityData: null,
+      personData: null,
       first_name: '',
       last_name: '',
       email: '',
@@ -84,94 +82,72 @@ export default {
       zipcode: ''
     }
   },
-  async mounted() {
-    await this.getRecord();
-  },
   methods: {
-    getRecord() {
-      this.recordId = this.$route.params.id
-      axios
-          .get('/api/v1/address_book/' + this.recordId + '/')
-          .then(response => {
-            console.log(response);
-            this.cityId = response.data.city.id;
-            this.city = response.data.city.name;
-            this.personId = response.data.person.id;
-            this.first_name = response.data.person.first_name;
-            this.last_name = response.data.person.last_name;
-            this.email = response.data.person.email;
-            this.home_number = response.data.person.home_number;
-            this.work_number = response.data.person.work_number;
-            this.fax = response.data.person.fax;
-            this.address = response.data.address;
-            this.zipcode = response.data.zipcode;
-          })
-          .catch(error => {
-            window.alert(error)
-          })
-    },
-
-    deleteRecord() {
-      axios
-          .delete('api/v1/address_book/' + this.recordId + '/')
-          .then(response => {
-            if (response.status === 204) {
-              window.alert('Successfully deleted!')
-              this.$router.push("/");
-            }
-          })
-          .catch(error => {
-            window.alert(error)
-          });
-    },
-
-    submitForm() {
-      const form_data = {
-        'city': this.cityId,
-        'person': this.personId,
-        'address': this.address,
-        'zipcode': this.zipcode
-      }
-
+    async postCity() {
       const city_data = {
         'id': this.cityId,
         'name': this.city,
       }
 
+      await axios.post('/api/v1/city/', city_data)
+          .then(response => {
+            console.log(response)
+            console.log(response.data.city);
+            this.cityData = response.data;
+          })
+          .catch(error => {
+            window.alert(error.request.responseText)
+          })
+    },
+
+    async postPerson() {
       const person_data = {
         'first_name': this.first_name,
         'last_name': this.last_name,
-        'home_number': this.home_number,
-        'work_number': this.work_number,
-        'fax': this.fax,
+        'home_number': parseInt(this.home_number),
+        'work_number': parseInt(this.work_number),
+        'fax': parseInt(this.fax),
         'email': this.email
       }
-      axios
-          .post('/api/v1/city/', city_data)
+
+      await axios
+          .post('/api/v1/person/', person_data)
           .then(response => {
-            console.log(response)
+            this.personData = response.data;
           })
           .catch(error => {
             window.alert(error.request.responseText)
           })
 
-      axios
-          .patch('/api/v1/person/' + this.personId + '/', person_data)
-          .then(response => {
-            console.log(response)
-          })
-          .catch(error => {
-            window.alert(error.request.responseText)
-          })
+    },
+    async onSubmit() {
+      let city_data = {
+        'name': this.city,
+      }
 
-      axios
-          .patch('/api/v1/address_book/' + this.recordId + '/', form_data)
+      let person_data = {
+        'first_name': this.first_name,
+        'last_name': this.last_name,
+        'home_number': parseInt(this.home_number),
+        'work_number': parseInt(this.work_number),
+        'fax': parseInt(this.fax),
+        'email': this.email
+      }
+
+      let form_data = {
+        'city': city_data,
+        'person': person_data,
+        'address': this.address,
+        'zipcode': this.zipcode
+      }
+
+      await axios
+          .post('/api/v1/address_book/', form_data)
           .then(response => {
-            console.log(response.status)
-            console.log(response.status === 201)
             if (response.status === 201) {
-              window.alert("Successfully updated.")
+              window.alert("Successfully add.")
             }
+            this.$router.push("/");
           })
           .catch(error => {
             window.alert(error.request.responseText)

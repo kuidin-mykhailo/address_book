@@ -17,8 +17,8 @@ services:
       dockerfile: docker/FrontendDockerfile
     container_name: address-book-frontend
     volumes:
-      - .:/app
+      - ./app:/app
     ports:
-      - "8083:8080"
+      - "8083:80"
     depends_on:
       - django
